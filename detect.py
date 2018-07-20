@@ -1,19 +1,21 @@
-#coding=utf-8
+# coding=utf-8
 
 # by garson blog garnote.top
-import socket, ssl
+import socket
+import ssl
 from netaddr import IPNetwork
 
-def detect (ip,timeout,hostname) :
-    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+
+def detect(ip, timeout, hostname):
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     context.verify_mode = ssl.CERT_REQUIRED
     #context.check_hostname = True
     context.load_default_certs()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(timeout)
-    ssl_sock = context.wrap_socket(s, server_hostname = hostname)
+    ssl_sock = context.wrap_socket(s, server_hostname=hostname)
     try:
-        ssl_sock.connect((ip, 443))#219.76.4.4 218.254.1.13
+        ssl_sock.connect((ip, 443))  # 219.76.4.4 218.254.1.13
         ca = str(ssl_sock.getpeercert())
         ssl_sock.close()
         s.close()
@@ -21,11 +23,12 @@ def detect (ip,timeout,hostname) :
             return False
         else:
             return True
-    except:
+    except Exception as e:
+        #print e
         return False
     return True
+#print(detect("101.96.10.72", 2, "github.com"))
 
-#print(detect("219.76.4.4",2))
 
 def usage():
     helps = '''
@@ -38,6 +41,7 @@ def usage():
     '''
     print(helps)
 
+
 def gen_ip(a):
     txt = a
     temp = []
@@ -45,7 +49,7 @@ def gen_ip(a):
     for n in list1:
         list2 = n.split('-')
         if len(list2) == 2:
-            tmp = iprange(list2[0],list2[1])
+            tmp = iprange(list2[0], list2[1])
             for b in tmp:
                 temp.append(b)
         elif len(n.split('/')) == 2:
@@ -54,12 +58,13 @@ def gen_ip(a):
                 temp.append(str(b))
     return temp
 
-def ip2num(ip):#ip to int num
+
+def ip2num(ip):  # ip to int num
     lp = [int(x) for x in ip.split('.')]
     return lp[0] << 24 | lp[1] << 16 | lp[2] << 8 | lp[3]
 
 
-def num2ip(num):# int num to ip
+def num2ip(num):  # int num to ip
     ip = ['', '', '', '']
     ip[3] = (num & 0xff)
     ip[2] = (num & 0xff00) >> 8
@@ -68,7 +73,7 @@ def num2ip(num):# int num to ip
     return '%s.%s.%s.%s' % (ip[0], ip[1], ip[2], ip[3])
 
 
-def iprange(ip1,ip2):
+def iprange(ip1, ip2):
     num1 = ip2num(ip1)
     num2 = ip2num(ip2)
     temp = []
@@ -77,10 +82,10 @@ def iprange(ip1,ip2):
     if tmp < 0:
         return None
     else:
-        for num in range(num1,num2 + 1):
+        for num in range(num1, num2 + 1):
             temp.append(num2ip(num1 + n))
-            n +=1
+            n += 1
         return(temp)
 
 
-#print(iprange('192.168.199.1','192.168.200.1'))
+# print(iprange('192.168.199.1','192.168.200.1'))
